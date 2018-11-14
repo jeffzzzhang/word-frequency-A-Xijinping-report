@@ -1,0 +1,36 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct 18 13:40:46 2017
+analysis of CCP 19th Representative conf.
+
+@author: talen
+"""
+import os,jieba
+import collections as cc
+if __name__ == '__main__':
+    os.chdir('C:/Users/talen/Desktop/data/')
+    jieba.load_userdict('C:/WinPython-64bit-3.6.1.0Qt5/python-3.6.1.amd64/Lib/site-packages/jieba/cpc.txt')
+    f = open('十九大习近平报告全文.txt',encoding="utf-8")
+    files = f.readlines()
+    # files = files.encode('utf-8').decode('utf-8-sig')
+    report = [term for term in files if term != '\n']
+    report1 = [term[:-1] if term.endswith('\n') else term for term in report]
+    # report2 用于去掉句子开头的'\ufeff'
+    report2 = [term.encode('utf-8').decode('utf-8-sig') for term in report1 if term != '\n']
+    #
+    def del_sym(alist):
+        del_list = ['，','。','；','：','“','”',' ','（','）','、','！']
+        blist = [term for term in alist if term not in del_list]
+        return blist
+    def del_stopwords(alist):
+        del_list = ['的','和','是','在','为']
+        blist = [term for term in alist if term not in del_list]
+        return blist
+    seg_report_no_sym = [del_sym(list(jieba.cut(term))) for term in report2]
+    seg_report_no_stopwords = [del_stopwords(term) for term in seg_report_no_sym]
+    full_text_seg = [e for term in seg_report_no_stopwords for e in term]
+    stat_results = cc.Counter(full_text_seg)
+    total_char = 0
+    for i,e in enumerate(seg_report_no_sym):
+        for j,term in enumerate(e):
+            total_char += term.__len__()
